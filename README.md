@@ -12,6 +12,6 @@ An example webapp which generates a iOS Passbook Pass using passkit4j and Play! 
 
 ### License
 
-Copyright (c) 2012 Brian Porter - http://www.poornerd.com   Twitter:poornerd
+Copyright (c) 2013 Brian Porter - http://www.poornerd.com   Twitter:poornerd
 
 Published under Apache Software License 2.0, see LICENSE
