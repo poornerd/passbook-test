@@ -15,6 +15,9 @@ import com.ryantenney.passkit4j.model.*;
 import com.ryantenney.passkit4j.sign.PassSigner;
 import com.ryantenney.passkit4j.sign.PassSignerImpl;
 import java.io.File;
+import java.util.UUID;
+import scala.io.Codec;
+
 
 public class Application extends Controller {
 
@@ -23,20 +26,20 @@ public class Application extends Controller {
     }
 
     public static Result passbook() {
-
+        String filename = null;
         try {
-            passTest();
+            filename = passTest();
         } catch (Exception e) {
             System.out.println(e);
         }
         response().setHeader("Pragma", "no-cache");
         response().setContentType("application/vnd.apple.pkpass");
         response().setHeader("Content-disposition", "attachment; filename=StoreCard.pkpass");
-        File file = new File("/tmp/StoreCard.pkpass");
+        File file = new File(filename);
         return ok(file).as("application/vnd.apple.pkpass");
     }
 
-    public static void passTest() throws Exception {
+    public static String passTest() throws Exception {
 
         Location poornerd = new Location(48.072582436845785, 11.520911265323651);
         poornerd.relevantText("You are at SiteForce");
@@ -65,8 +68,11 @@ public class Application extends Controller {
                 new TextField("terms", "Checking Links",
                 "Click here to check in at SiteForce: foursquare://venues/4b534f78f964a5209f9627e3 ")));
 
-        PassSigner signer = PassSignerImpl.builder().keystore(new FileInputStream(Play.class.getResource("publicKey").getFile()), passkey).intermediateCertificate(new FileInputStream(Play.class.getResource(certificateFile).getFile())).build();
+        PassSigner signer = PassSignerImpl.builder().keystore(new FileInputStream(Play.class.getResource(publicKey).getFile()), passkey).intermediateCertificate(new FileInputStream(Play.class.getResource(certificateFile).getFile())).build();
 
-        PassSerializer.writePkPassArchive(pass, signer, new FileOutputStream("/tmp/StoreCard.pkpass"));
+        String uuid = UUID.randomUUID().toString();
+        File tempFile = File.createTempFile("temp-" + uuid, ".tmp");   
+        PassSerializer.writePkPassArchive(pass, signer, new FileOutputStream(tempFile.getAbsolutePath()));
+        return tempFile.getAbsolutePath();
     }
 }
